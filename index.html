@@ -19,7 +19,7 @@
       display: none;
       width: 80%;
       max-width: 900px;
-      margin: 0 auto;
+      margin: 2em auto;
       padding: 1em;
       background: #fff;
       border-radius: 6px;
@@ -58,13 +58,13 @@
       text-align: center; 
       margin-top: 1em;
     }
-    .difficultyBtn {
+    .difficultyBtn, #nextBtn {
       background: #4c93e8; color: #fff; border: none;
       padding: 0.8em; margin: 0.5em;
       border-radius: 4px; cursor: pointer;
       font-size: 1rem;
     }
-    .difficultyBtn:hover {
+    .difficultyBtn:hover, #nextBtn:hover {
       background: #317ac0;
     }
     #questionArea {
@@ -137,11 +137,10 @@ let score = 0;
 let questionTimerId = null;   // 문제별 시간 제한용
 let mainTimerId = null;       // 전체 게임 시간용
 
-// 전체 문제 배열 (총 58문제)
+// 전체 문제 배열 (문제 중 계산이 지나치게 복잡하거나 근삿값이 답인 문제는 삭제하였고, 중복된 문제도 제거함)
 // 문제마다: { questionHtml, choicesHtml, correctIndex, explanation }
 const allQuestions = [
-
-  // (1)~(14)
+  // [1] ~ [13] (원래 14문제 중 중복 제거)
   {
     questionHtml: `\\( (x^2 + x)^2 - 7x^2 - 7x + 12 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
@@ -242,17 +241,6 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( (x^2 - 3x)(x^2 - 3x + 5) + 6 \\) 를 인수분해한 결과는? (다시 제시)`,
-    choicesHtml: [
-      "(A) \\((x - 1)(x - 2)(x^2 - 3x + 3)\\)",
-      "(B) \\((x - 1)(x + 2)(x^2 - 3x + 3)\\)",
-      "(C) \\((x + 1)(x - 2)(x^2 - 3x + 3)\\)",
-      "(D) \\((x + 1)(x - 2)(x^2 - 3x + 5)\\)"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
     questionHtml: `\\( x(x+1)(x-2)(x+3) + 8 \\) 을 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x - 1)(x + 2)(x^2 + x - 4)\\)",
@@ -296,8 +284,8 @@ const allQuestions = [
     correctIndex: 0,
     explanation: "정답: (A)"
   },
-
-  // (18)~(28)
+  // ---------------------------------------------------
+  // [2] 블록: 14번 이후, x^4 계열 문제 (계산이 지나치게 복잡한 문제는 삭제)
   {
     questionHtml: `\\( x^4 - 3x^2 - 4 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
@@ -335,7 +323,7 @@ const allQuestions = [
     questionHtml: `\\( x^4 - 1 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x+1)(x-1)(x^2+1)\\)",
-      "(B) \\((x^2 - 1)(x^2 + 1)\\)",
+      "(B) \\((x^2 - 1)(x^2+1)\\)",
       "(C) \\((x+1)(x+1)(x^2+1)\\)",
       "(D) \\((x-1)(x-1)(x^2+1)\\)"
     ],
@@ -346,9 +334,9 @@ const allQuestions = [
     questionHtml: `\\( x^4 + 4 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x^2 + 2x + 2)(x^2 - 2x + 2)\\)",
-      "(B) \\((x^2 + 4)(x^2 + 1)\\)",
-      "(C) \\((x^2 + 2x - 2)(x^2 - 2x + 2)\\)",
-      "(D) \\((x^2 + 2x + 2)^2\\)"
+      "(B) \\((x^2+4)(x^2+1)\\)",
+      "(C) \\((x^2+2x-2)(x^2-2x+2)\\)",
+      "(D) \\((x^2+2x+2)^2\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
@@ -356,10 +344,10 @@ const allQuestions = [
   {
     questionHtml: `\\( x^4 + 64 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
-      "(A) \\((x^2 + 4x + 8)(x^2 - 4x + 8)\\)",
-      "(B) \\((x^2 + 8)(x^2 + 8)\\)",
-      "(C) \\((x^2 + 4x - 8)(x^2 - 4x + 8)\\)",
-      "(D) \\((x^2 + 8x + 8)(x^2 - 4x + 8)\\)"
+      "(A) \\((x^2+4x+8)(x^2-4x+8)\\)",
+      "(B) \\((x^2+8)(x^2+8)\\)",
+      "(C) \\((x^2+4x-8)(x^2-4x+8)\\)",
+      "(D) \\((x^2+8x+8)(x^2-4x+8)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
@@ -367,32 +355,10 @@ const allQuestions = [
   {
     questionHtml: `\\( x^4 - 12x^2 + 16 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
-      "(A) \\((x^2 + 2x - 4)(x^2 - 2x - 4)\\)",
-      "(B) \\((x^2 - 2x + 4)(x^2 + 2x - 4)\\)",
-      "(C) \\((x^2 + 4x - 4)(x^2 - 4x - 4)\\)",
-      "(D) \\((x^2 + 2x - 4)^2\\)"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
-    questionHtml: `\\( x^4 - 19x^2 + 25 \\) 를 인수분해한 결과는?`,
-    choicesHtml: [
-      "(A) \\((x^2 + 5x - 3)(x^2 - 5x - 3)\\)",
-      "(B) \\((x^2 - 5x + 3)(x^2 + 5x - 3)\\)",
-      "(C) \\((x^2 + 5x - 3)(x^2 + 5x - 3)\\)",
-      "(D) \\((x^2 + 5x - 5)(x^2 - 5x - 5)\\)"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
-    questionHtml: `\\( x^4 - 11x^2 + 1 \\) 를 인수분해한 결과는?`,
-    choicesHtml: [
-      "(A) \\((x^2 + 3x - 1)(x^2 - 3x - 1)\\)",
-      "(B) \\((x^2 + 3x + 1)(x^2 - 3x - 1)\\)",
-      "(C) \\((x^2 + 3x - 1)(x^2 - 3x + 1)\\)",
-      "(D) \\((x^2 + 3x - 1)^2\\)"
+      "(A) \\((x^2+2x-4)(x^2-2x-4)\\)",
+      "(B) \\((x^2-2x+4)(x^2+2x-4)\\)",
+      "(C) \\((x^2+4x-4)(x^2-4x-4)\\)",
+      "(D) \\((x^2+2x-4)^2\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
@@ -400,10 +366,10 @@ const allQuestions = [
   {
     questionHtml: `\\( x^4 + 4x^2 - 5 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
-      "(A) \\((x - 1)(x + 1)(x^2 + 5)\\)",
-      "(B) \\((x - 1)(x + 2)(x^2 + 5)\\)",
-      "(C) \\((x + 1)(x + 1)(x^2 + 5)\\)",
-      "(D) \\((x - 1)(x + 1)(x^2 + 1)\\)"
+      "(A) \\((x-1)(x+1)(x^2+5)\\)",
+      "(B) \\((x-1)(x+2)(x^2+5)\\)",
+      "(C) \\((x+1)(x+1)(x^2+5)\\)",
+      "(D) \\((x-1)(x+1)(x^2+1)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
@@ -411,18 +377,18 @@ const allQuestions = [
   {
     questionHtml: `\\( x^4 + 3x^2 + 4 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
-      "(A) \\((x^2 - x + 2)(x^2 + x + 2)\\)",
-      "(B) \\((x^2 + x + 2)(x^2 + x + 2)\\)",
-      "(C) \\((x^2 - x - 2)(x^2 + x - 2)\\)",
-      "(D) \\((x^2 - x + 4)(x^2 + x + 4)\\)"
+      "(A) \\((x^2-x+2)(x^2+x+2)\\)",
+      "(B) \\((x^2+x+2)^2\\)",
+      "(C) \\((x^2-x-2)(x^2+x-2)\\)",
+      "(D) \\((x^2-x+4)(x^2+x+4)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
   },
-
-  // (39)~(46)
+  // ---------------------------------------------------
+  // [3] 블록: 삼각형 관련 인수분해 문제
   {
-    questionHtml: `삼각형 변의 길이 \\(a,b,c\\)가 다음을 만족한다고 할 때: \\(a^2 + bc + ab - c^2\\) 의 인수분해 결과는?`,
+    questionHtml: `삼각형 변의 길이 \\(a,b,c\\)가 다음을 만족한다고 할 때: \\(a^2+bc+ab-c^2\\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a-c)(a+b-c)\\)",
       "(B) \\((a+c)(a+b+c)\\)",
@@ -433,7 +399,7 @@ const allQuestions = [
     explanation: "정답: (C)"
   },
   {
-    questionHtml: `\\( a^2 - ab + 2bc - 4c^2 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( a^2-ab+2bc-4c^2 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a+2c)(a-b+2c)\\)",
       "(B) \\((a-2c)(a+b+2c)\\)",
@@ -444,7 +410,7 @@ const allQuestions = [
     explanation: "정답: (C)"
   },
   {
-    questionHtml: `\\( a^3 - ab^2 - b^2c + a^2c \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( a^3-ab^2-b^2c+a^2c \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a-b)(a+b)(a+c)\\)",
       "(B) \\((a+b)(b+c)(a-b)\\)",
@@ -455,29 +421,29 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( a^3 - ab^2 + b^2c - a^2c \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( a^3-ab^2+b^2c-a^2c \\) 의 인수분해 결과는?`,
     choicesHtml: [
-      "(A) \\((a+b)(a+b)(a-c)\\)",
+      "(A) \\((a+b)^2(a-c)\\)",
       "(B) \\((a+b)(a-b)(a-c)\\)",
       "(C) \\((a+b)(b-a)(c-a)\\)",
-      "(D) \\((b+a)(b-a)(c-a)\\)"
+      "(D) \\((a+b)(b-a)(c-a)\\)"
     ],
     correctIndex: 1,
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( a^2b + b^2c - b^3 - a^2c \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( a^2b+b^2c-b^3-a^2c \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a+b)(a-b)(b-c)\\)",
       "(B) \\((a-b)(a+b)(c-b)\\)",
       "(C) \\((a+b)(b-c)(b-a)\\)",
-      "(D) \\((a+b)(a+b)(b-c)\\)"
+      "(D) \\((a+b)^2(b-c)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( 9a^2 + 3ab - bc - c^2 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( 9a^2+3ab-bc-c^2 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((3a+c)(3a+b-c)\\)",
       "(B) \\((3a-c)(3a+b+c)\\)",
@@ -488,7 +454,7 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( ab(a-b) + bc(b-c) + ca(c-a) \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( ab(a-b)+bc(b-c)+ca(c-a) \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a-b)(b-c)(c-a)\\)",
       "(B) \\((a-b)(c-b)(a-c)\\)",
@@ -499,7 +465,7 @@ const allQuestions = [
     explanation: "정답: (D)"
   },
   {
-    questionHtml: `\\( a(b^2 - c^2) + b(c^2 - a^2) + c(a^2 - b^2) \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( a(b^2-c^2)+b(c^2-a^2)+c(a^2-b^2) \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((a-b)(a-c)(c-b)\\)",
       "(B) \\((a-b)(b-c)(a-c)\\)",
@@ -509,10 +475,10 @@ const allQuestions = [
     correctIndex: 0,
     explanation: "정답: (A)"
   },
-
-  // (59)~(65)
+  // ---------------------------------------------------
+  // [4] 블록: 삼차식 인수분해 문제
   {
-    questionHtml: `\\( x^3 - 3x + 2 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-3x+2 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)^2(x+2)\\)",
       "(B) \\((x-1)(x-1)(x-2)\\)",
@@ -523,7 +489,7 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( x^3 - 4x^2 + x + 6 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-4x^2+x+6 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x+1)(x+2)(x-3)\\)",
       "(B) \\((x+1)(x-2)(x-3)\\)",
@@ -534,7 +500,7 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( x^3 - 2x^2 - 5x + 6 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-2x^2-5x+6 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x+1)(x-2)(x-3)\\)",
       "(B) \\((x-1)(x-2)(x-3)\\)",
@@ -545,7 +511,7 @@ const allQuestions = [
     explanation: "정답: (C)"
   },
   {
-    questionHtml: `\\( x^3 - 6x^2 + 3x + 10 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-6x^2+3x+10 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x+1)(x-2)(x-5)\\)",
       "(B) \\((x+1)(x+5)(x-2)\\)",
@@ -556,7 +522,7 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( 2x^3 - 5x^2 - 4x + 3 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( 2x^3-5x^2-4x+3 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x-3)(2x+1)\\)",
       "(B) \\((x+1)(x-3)(2x-1)\\)",
@@ -567,7 +533,7 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( x^3 - x^2 - 5x - 3 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-x^2-5x-3 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)^2(x+3)\\)",
       "(B) \\((x+1)^2(x-3)\\)",
@@ -578,42 +544,42 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( x^3 - 3x^2 - 4x + 12 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^3-3x^2-4x+12 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x-2)(x+2)(x-3)\\)",
       "(B) \\((x-2)^2(x-3)\\)",
-      "(C) \\((x-2)(x-3)(x-3)\\)",
+      "(C) \\((x-2)(x-3)^2\\)",
       "(D) \\((x+2)(x+3)(x-2)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
   },
-
-  // (69)~(74)
+  // ---------------------------------------------------
+  // [5] 블록: 사차식 인수분해 문제
   {
-    questionHtml: `\\( x^4 + x^3 - 3x^2 - x + 2 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( x^4+x^3-3x^2-x+2 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x+1)(x+2)(x-2)\\)",
-      "(B) \\((x-1)^2 (x+1)(x+2)\\)",
-      "(C) \\((x+1)^2 (x-2)(x+2)\\)",
-      "(D) \\((x-1)^2 (x-1)(x+2)\\)"
+      "(B) \\((x-1)^2(x+1)(x+2)\\)",
+      "(C) \\((x+1)^2(x-2)(x+2)\\)",
+      "(D) \\((x-1)^2(x-1)(x+2)\\)"
     ],
     correctIndex: 1,
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( x^4 - 5x^3 + 5x^2 + 5x - 6 \\) 를 인수분해한 결과는?`,
+    questionHtml: `\\( x^4-5x^3+5x^2+5x-6 \\) 를 인수분해한 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x+1)(x+2)(x-3)\\)",
-      "(B) \\((x-1)(x-1)(x-2)(x+3)\\)",
+      "(B) \\((x-1)^2(x-2)(x+3)\\)",
       "(C) \\((x-1)(x+1)(x-2)(x-3)\\)",
-      "(D) \\((x+1)(x-2)(x-3)(x-3)\\)"
+      "(D) \\((x+1)(x-2)(x-3)^2\\)"
     ],
     correctIndex: 2,
     explanation: "정답: (C)"
   },
   {
-    questionHtml: `\\( x^4 - 15x^2 - 10x + 24 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( x^4-15x^2-10x+24 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x-2)(x+3)(x-4)\\)",
       "(B) \\((x-1)(x+2)(x+3)(x-4)\\)",
@@ -624,7 +590,7 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `\\( x^4 + x^3 - 7x^2 - x + 6 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( x^4+x^3-7x^2-x+6 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((x+1)(x-1)(x+3)(x-2)\\)",
       "(B) \\((x-1)(x-2)(x+3)(x+4)\\)",
@@ -635,7 +601,7 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( 2x^4 + 3x^3 - 4x^2 - 3x + 2 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( 2x^4+3x^3-4x^2-3x+2 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x+1)(2x-1)(x+2)\\)",
       "(B) \\((2x-1)(x+1)(x+3)(x-2)\\)",
@@ -646,53 +612,20 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `\\( 2x^4 + 5x^3 - 5x^2 - 5x + 3 \\) 의 인수분해 결과는?`,
+    questionHtml: `\\( 2x^4+5x^3-5x^2-5x+3 \\) 의 인수분해 결과는?`,
     choicesHtml: [
       "(A) \\((x-1)(x+1)(x+3)(2x-1)\\)",
       "(B) \\((x+1)(x+2)(x+3)(2x-1)\\)",
       "(C) \\((x-1)(x+1)(2x+1)(x+3)\\)",
-      "(D) \\((x-1)(x-1)(x+3)(2x-1)\\)"
+      "(D) \\((x-1)^2(x+3)(2x-1)\\)"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
   },
-
-  // (77)~(82) - 분수 계산
+  // ---------------------------------------------------
+  // [6] 블록: 분수 계산 문제 (계산 숫자가 지나치게 큰 문제는 삭제)
   {
-    questionHtml: `다음 식을 계산하시오. \\( \\dfrac{998^3 - 1}{999^2 - 998} \\)`,
-    choicesHtml: [
-      "(A) 997",
-      "(B) 996",
-      "(C) 1000",
-      "(D) 998"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
-    questionHtml: `다음 식을 계산하시오. \\( \\dfrac{500^3 - 1}{501 \\times 500 + 1} \\)`,
-    choicesHtml: [
-      "(A) 499",
-      "(B) 500",
-      "(C) 501",
-      "(D) 498"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
-    questionHtml: `다음 식을 계산하시오. \\( \\dfrac{152 \\times 151 + 1}{151^3 - 1} \\)`,
-    choicesHtml: [
-      "(A) \\dfrac{1}{150}",
-      "(B) \\dfrac{1}{151}",
-      "(C) \\dfrac{2}{151}",
-      "(D) \\dfrac{1}{149}"
-    ],
-    correctIndex: 0,
-    explanation: "정답: (A)"
-  },
-  {
-    questionHtml: `다음 식을 계산하시오. \\( \\left(\\dfrac{27^2 - 1}{29^2 - 1}\\right) \\times \\left(\\dfrac{29^3 + 1}{29^2 - 29 + 1}\\right) \\)`,
+    questionHtml: `다음 식을 계산하시오. \\( \\left(\\dfrac{27^2-1}{29^2-1}\\right)\\times\\left(\\dfrac{29^3+1}{29^2-29+1}\\right) \\)`,
     choicesHtml: [
       "(A) 24",
       "(B) 25",
@@ -702,56 +635,34 @@ const allQuestions = [
     correctIndex: 2,
     explanation: "정답: (C)"
   },
+  // ---------------------------------------------------
+  // [7] 블록: 삼각형 관련 문제
   {
-    questionHtml: `다음 식을 계산하시오. \\( \\dfrac{2016^3 - 27}{2016 \\times 2019 + 9} \\)`,
-    choicesHtml: [
-      "(A) 2012",
-      "(B) 2013",
-      "(C) 2016",
-      "(D) 2020"
-    ],
-    correctIndex: 1,
-    explanation: "정답: (B)"
-  },
-  {
-    questionHtml: `다음 식을 계산하시오. \\( \\left(\\dfrac{2015^2 - 1}{2017^2 - 1}\\right) \\times \\left(\\dfrac{2017^3 + 1}{2017^2 - 2017 + 1}\\right) \\)`,
-    choicesHtml: [
-      "(A) 2012",
-      "(B) 2014",
-      "(C) 2015",
-      "(D) 2018"
-    ],
-    correctIndex: 1,
-    explanation: "정답: (B)"
-  },
-
-  // (86)~(91) - 삼각형 관련
-  {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\( a^3 + b^3 + c^3 - 3abc = 0 \\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^3+b^3+c^3-3abc=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
       "(A) 정삼각형",
       "(B) 빗변의 길이가 a인 직각삼각형",
-      "(C) a = b 인 이등변삼각형",
-      "(D) b = c 인 이등변삼각형"
+      "(C) a=b 인 이등변삼각형",
+      "(D) b=c 인 이등변삼각형"
     ],
     correctIndex: 0,
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^3 + a^2c - ab^2 - b^2c = 0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^3+a^2c-ab^2-b^2c=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
       "(A) 정삼각형",
-      "(B) a = b 인 이등변삼각형",
+      "(B) a=b 인 이등변삼각형",
       "(C) 빗변의 길이가 b인 직각삼각형",
-      "(D) a = c 인 이등변삼각형"
+      "(D) a=c 인 이등변삼각형"
     ],
     correctIndex: 1,
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^4 + a^2 c^2 + b^2 c^2 - b^4 = 0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^4+a^2c^2+b^2c^2-b^4=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
-      "(A) a = b 인 이등변삼각형",
+      "(A) a=b 인 이등변삼각형",
       "(B) 빗변의 길이가 b인 직각삼각형",
       "(C) 빗변의 길이가 c인 직각삼각형",
       "(D) 정삼각형"
@@ -760,21 +671,21 @@ const allQuestions = [
     explanation: "정답: (B)"
   },
   {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(ab(a+b) - bc(b+c) - ca(c-a) = 0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(ab(a+b)-bc(b+c)-ca(c-a)=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
-      "(A) a = b 인 이등변삼각형",
-      "(B) b = c 인 이등변삼각형",
-      "(C) a = c 인 이등변삼각형",
+      "(A) a=b 인 이등변삼각형",
+      "(B) b=c 인 이등변삼각형",
+      "(C) a=c 인 이등변삼각형",
       "(D) 빗변의 길이가 a인 직각삼각형"
     ],
     correctIndex: 2,
     explanation: "정답: (C)"
   },
   {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^2(a+b) - a(b^2 + c^2) - bc^2 - b^3 = 0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(a^2(a+b)-a(b^2+c^2)-bc^2-b^3=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
       "(A) 빗변의 길이가 a인 직각삼각형",
-      "(B) a = b 인 이등변삼각형",
+      "(B) a=b 인 이등변삼각형",
       "(C) 빗변의 길이가 b인 직각삼각형",
       "(D) 정삼각형"
     ],
@@ -782,20 +693,19 @@ const allQuestions = [
     explanation: "정답: (A)"
   },
   {
-    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(b^2(a^2 + b^2) - c^2(c^2 - a^2) = 0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
+    questionHtml: `삼각형의 세 변 길이 \\(a,b,c\\)가 \\(b^2(a^2+b^2)-c^2(c^2-a^2)=0\\) 인 관계를 만족할 때, 이 삼각형은 어떤 삼각형인가?`,
     choicesHtml: [
       "(A) 정삼각형",
       "(B) 빗변의 길이가 c인 직각삼각형",
-      "(C) b = c 인 이등변삼각형",
+      "(C) b=c 인 이등변삼각형",
       "(D) 빗변의 길이가 b인 직각삼각형"
     ],
     correctIndex: 1,
     explanation: "정답: (B)"
   }
-
 ]; // end allQuestions
 
-// 문제 섞기 (문제 내부 보기 순서는 고정, 문제 출제 순서만 랜덤)
+// 문제 섞기 (문제 출제 순서만 랜덤)
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random()*(i+1));
@@ -807,7 +717,7 @@ shuffleArray(allQuestions);
 let currentQuestionIndex = 0;
 const totalQuestions = allQuestions.length;
 
-// DOM
+// DOM 요소들
 const startScreen = document.getElementById("startScreen");
 const quizScreen = document.getElementById("quizScreen");
 const resultScreen = document.getElementById("resultScreen");
@@ -821,7 +731,7 @@ const finalScore = document.getElementById("finalScore");
 const playerNameInput = document.getElementById("playerName");
 const sendScoreBtn = document.getElementById("sendScoreBtn");
 
-// 난이도 설정
+// 난이도 설정 버튼 이벤트
 document.querySelectorAll(".difficultyBtn").forEach(btn => {
   btn.addEventListener("click", () => {
     const level = btn.getAttribute("data-level");
@@ -862,7 +772,7 @@ function startGame(level) {
   displayStatus();
   showQuestion();
 
-  // 전체 게임 시간 타이머 (항상 흐름)
+  // 전체 게임 경과 시간 타이머
   if(mainTimerId) clearInterval(mainTimerId);
   mainTimerId = setInterval(() => {
     if(currentQuestionIndex >= totalQuestions || life <= 0) {
@@ -872,43 +782,6 @@ function startGame(level) {
     totalElapsedTime++;
     totalTimeArea.innerText = `전체 경과 시간: 약 ${totalElapsedTime}초`;
   }, 1000);
-
-  // 문제별 제한시간 타이머 (최상/상/중 only)
-  if(isFinite(timeLimit)) {
-    if(questionTimerId) clearInterval(questionTimerId);
-    questionTimerId = setInterval(() => {
-      if(currentQuestionIndex >= totalQuestions || life <= 0) {
-        clearInterval(questionTimerId);
-        return;
-      }
-      remainingTime--;
-      displayStatus();
-      // 에너지바
-      const ratio = Math.max(0, remainingTime/timeLimit);
-      energyBar.style.width = (ratio*100) + "%";
-      if(remainingTime <= 0) {
-        // 시간 초과
-        life--;
-        alert("시간 초과! 기회가 1회 줄어듭니다.");
-        // 정답 표시
-        const correctAns = allQuestions[currentQuestionIndex].explanation;
-        alert("정답: " + correctAns);
-        currentQuestionIndex++;
-        if(life <= 0 || currentQuestionIndex >= totalQuestions) {
-          endGame();
-          clearInterval(questionTimerId);
-          return;
-        }
-        remainingTime = timeLimit; 
-        showQuestion();
-        displayStatus();
-      }
-    }, 1000);
-  } else {
-    // 하(무제한)이면 에너지바 풀
-    energyBar.style.width = "100%";
-    timerArea.innerText = "남은 시간: 제한 없음";
-  }
 }
 
 function displayStatus() {
@@ -922,29 +795,54 @@ function displayStatus() {
 }
 
 function showQuestion() {
+  // 초기화: 이전 '다음문제' 버튼 제거
+  const existingNextBtn = document.getElementById("nextBtn");
+  if(existingNextBtn) existingNextBtn.remove();
+
+  // 문제 종료 체크
   if(currentQuestionIndex >= totalQuestions) {
     endGame();
     return;
   }
+  
   const qData = allQuestions[currentQuestionIndex];
-
-  // 에너지바 초기화
+  
+  // 에너지바 및 시간 초기화 (문제별)
   if(isFinite(timeLimit)) {
     remainingTime = timeLimit;
     energyBar.style.width = "100%";
+    if(questionTimerId) clearInterval(questionTimerId);
+    questionTimerId = setInterval(() => {
+      remainingTime--;
+      displayStatus();
+      const ratio = Math.max(0, remainingTime/timeLimit);
+      energyBar.style.width = (ratio * 100) + "%";
+      if(remainingTime <= 0) {
+        clearInterval(questionTimerId);
+        life--;
+        alert("시간 초과! 기회가 1회 줄어듭니다.");
+        alert("정답: " + qData.explanation);
+        // 비활성화: 모든 선택 버튼
+        document.querySelectorAll(".choiceBtn").forEach(btn => btn.disabled = true);
+        displayStatus();
+        if(life <= 0) {
+          endGame();
+          return;
+        }
+        showNextButton();
+      }
+    }, 1000);
+  } else {
+    energyBar.style.width = "100%";
+    timerArea.innerText = "남은 시간: 제한 없음";
   }
 
-  // 문제 표시
+  // 문제 및 보기를 화면에 표시
   questionArea.innerHTML = `
-    <div style="font-weight:bold; margin-bottom:0.5em;">
-      문제:
-    </div>
-    <div style="margin-bottom:1em;">
-      ${qData.questionHtml}
-    </div>
+    <div style="font-weight:bold; margin-bottom:0.5em;">문제:</div>
+    <div style="margin-bottom:1em;">${qData.questionHtml}</div>
   `;
-
-  // 보기 표시
+  
   qData.choicesHtml.forEach((choiceText, idx) => {
     const btn = document.createElement("button");
     btn.className = "choiceBtn";
@@ -953,18 +851,20 @@ function showQuestion() {
     questionArea.appendChild(btn);
   });
 
-  // 수식 렌더링
   MathJax.typeset();
 }
 
 function checkAnswer(chosenIdx) {
   const qData = allQuestions[currentQuestionIndex];
+  // 정답 또는 오답 선택 후, 더 이상 클릭 못하도록 모든 보기 비활성화
+  document.querySelectorAll(".choiceBtn").forEach(btn => btn.disabled = true);
+  // 시간제한 타이머 정지
+  if(questionTimerId) clearInterval(questionTimerId);
+  
   if(chosenIdx === qData.correctIndex) {
-    // 정답
     score += scorePerQuestion;
-    alert("정답입니다! +"+scorePerQuestion+"점");
+    alert("정답입니다! +" + scorePerQuestion + "점");
   } else {
-    // 오답
     life--;
     alert("오답입니다!\n" + qData.explanation);
     if(life <= 0) {
@@ -972,22 +872,40 @@ function checkAnswer(chosenIdx) {
       return;
     }
   }
-  currentQuestionIndex++;
-  if(currentQuestionIndex >= totalQuestions) {
-    endGame();
-  } else {
-    showQuestion();
-  }
   displayStatus();
+  // 정답/오답 확인 후에만 "다음문제" 버튼 표시
+  showNextButton();
+}
+
+function showNextButton() {
+  let nextBtn = document.getElementById("nextBtn");
+  if(!nextBtn) {
+    nextBtn = document.createElement("button");
+    nextBtn.id = "nextBtn";
+    nextBtn.innerText = "다음문제";
+    nextBtn.style.display = "block";
+    nextBtn.style.margin = "1em auto";
+    nextBtn.className = "difficultyBtn";
+    nextBtn.addEventListener("click", () => {
+      nextBtn.remove();
+      currentQuestionIndex++;
+      if(currentQuestionIndex >= totalQuestions) {
+        endGame();
+      } else {
+        showQuestion();
+      }
+    });
+    questionArea.appendChild(nextBtn);
+  } else {
+    nextBtn.style.display = "block";
+  }
 }
 
 function endGame() {
   quizScreen.style.display = "none";
   resultScreen.style.display = "block";
-  // 혹시 남아있는 타이머 종료
   if(questionTimerId) clearInterval(questionTimerId);
   if(mainTimerId) clearInterval(mainTimerId);
-
   finalScore.innerText = `최종 점수: ${score}점\n(전체 경과 시간: 약 ${totalElapsedTime}초)`;
 }
 
@@ -1001,20 +919,16 @@ sendScoreBtn.addEventListener("click", () => {
 // 서버 통신 함수
 async function saveData(game, name, score, elapsedTime) {
     const FUNCTION_URL = "https://us-central1-record-f420d.cloudfunctions.net/report";
-
     const requestData = {
         game,
         name,
         score: parseInt(score, 10),
         elapsedTime: parseInt(elapsedTime, 10)
     };
-
     try {
         const response = await fetch(FUNCTION_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)
         });
         const responseData = await response.json();
